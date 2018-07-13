@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
+#include <math.h>
 
 #define STACKSIZE  128
-#define WORDSIZE 64
 #define TABLESIZE 64
-#define PUSHBACK 16
+#define WORDSIZE 32
+#define BUFFSIZE 16
 
 typedef struct name_value {
 	
@@ -29,12 +29,12 @@ int install(char*,int);
 int lookup(char*);
 
 int stack[STACKSIZE];
-char pushback[PUSHBACK];
-entry wordtable[TABLESIZE];
+char buffer[BUFFSIZE];
 char word[WORDSIZE];
+entry wordtable[TABLESIZE];
 
 int stack_p;
-int push_p;
+int bufp;
 
 int main()
 {
@@ -42,7 +42,7 @@ int main()
     char c, *s, *name;
 	int i, asg;
 
-    push_p = 0;
+    bufp = 0;
     stack_p = 0;
 
     for(i = 0; i < STACKSIZE; i++)
@@ -126,14 +126,24 @@ int main()
                 op1 = pop();
                 value = sqrt(op1);
                 push(value);
-				break;	
+				break;
+				
+			case '%':
+				op2 = pop();
+				op1 = pop();
+				value = (int)op1 % (int)op2;
+				push(value);
+				break;
 			
 			case '=':
 				op2 = pop();
 				install(name,op2);
 				asg = 1;
 				break;
-				
+			
+			case '$':
+				return 0;
+				break;
         }
 
     }
@@ -209,17 +219,16 @@ int pop()
 
 void push(int value)
 {
-    if(stack_p < STACKSIZE - 1)
-        stack[stack_p++] = value;
+    stack[stack_p++] = value;
 }
 
 char getch(void)
 {
-    return push_p  == 0 ? getchar() : pushback[push_p--];
+    return (bufp > 0) ? buffer[--bufp] : getchar();
 }
 
 void ungetch(char c)
 {
-    stack[push_p] = c;
+    buffer[bufp++] = c;
 }
 
