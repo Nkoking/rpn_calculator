@@ -10,7 +10,7 @@ variable 2 ^ 2 *
 
 450
 
-Syntax:
+Syntax: operand operand operator
 
 Addition: +
 
