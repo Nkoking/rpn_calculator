@@ -33,62 +33,60 @@ char buffer[BUFFSIZE];
 char word[WORDSIZE];
 entry wordtable[TABLESIZE];
 
+void resetstack(void);
+void resettable(void);
+void resetword(void);
+
 int stackp;
 int bufp;
 
 int main()
 {
     double op1, op2, value;
-    char c, *s, *name;
+    char c, *store, *name;
     int i, asg;
 	
     asg = 0;
     bufp = 0;
     stackp = 0;
 
-    for(i = 0; i < STACKSIZE; i++){
-	stack[i] = 0;
-    }
-	
-    for(i = 0; i < WORDSIZE; i++){
-	word[i] = 0;
-    }
-	
-    for(i = 0; i < TABLESIZE; i++){
-	wordtable[i].name = "";
-	wordtable[i].value = 0;
-    }
+    resetstack();
+	resettable();
+	resetword();
 	
     while((c = getchar()) != '\0'){
-
-        if(c == '\n' && !asg)
-            printf("%d\n",stack[stackp-1]);
-	asg = 0;
 		
-        if(isspace(c))
-            continue;
-
+        if(c == '\n' && !asg){
+            printf("%d\n",stack[stackp - 1]);
+			continue;
+		}
+		asg = 0;
+		
+        if(isspace(c)){
+			continue;
+		}
+            
         if(isdigit(c)){
             value = getint(c - '0');
             push(value);
             continue;
         }
 		
-	if(isalpha(c)){
+		if(isalpha(c)){
+			
+			store = word;
+			*store++ = c;
+			getword(store);
+			
+			if((i = lookup(word))){
+				push(i);
+				continue;
+			}
 
-	    s = word;
-	    *s++ = c;
-	    getword(s);
-
-	    if((i = lookup(s))){
-		push(i);
-		continue;
-	    }
-
-	    name = (char *)malloc((strlen(s) + 1) * sizeof(char));
-	    strcpy(name, s);
-	    continue;
-	}
+			name = (char *)malloc((strlen(store) + 1) * sizeof(char));
+			strcpy(name, word);
+			continue;
+		}
 
         switch(c){
 
@@ -156,14 +154,18 @@ int main()
 				install(name,op2);
 				asg = 1;
 				break;
+			
+			case '@':
+				resetstack();
+				break;
 
 			case '$':
 				return 0;
 				break;
 
-			}
+		}
 
-    }
+	}
 
     return 0;
 
@@ -182,12 +184,14 @@ int getint(int n)
 
 }
 
-void getword(char *to){
+void getword(char *to)
+{
 	
-	while((*to++ = getchar()) != ' ')
+	while(!isspace(*to++ = getchar()))
 		;
 	
 	to = '\0';
+	
 }
 
 int install(char *name, int value)
@@ -214,19 +218,48 @@ int install(char *name, int value)
 	return 0;
 }
 
-int lookup(char *name)
+int lookup(char *word)
 {
 	int i;
 	
 	i = 0;
-	for(; i < TABLESIZE; i++)
-		if(!strcmp(name,wordtable[i].name))
+	for(; i < TABLESIZE; i++){
+		if(strcmp(word,wordtable[i].name) == 0){
 			return wordtable[i].value;
+		}
+	}
 		
 	return 0;
 }
 
-int pop()
+void resetstack(void)
+{	
+
+
+	int i;
+	for(i = 0; i < STACKSIZE; i++){
+		stack[i] = 0;
+    }
+}
+
+void resettable(void)
+{
+	int i;
+    for(i = 0; i < TABLESIZE; i++){
+		wordtable[i].name = "";
+		wordtable[i].value = 0;
+    }
+}
+
+void resetword(void)
+{
+	int i;
+    for(i = 0; i < WORDSIZE; i++){
+		word[i] = 0;
+    }
+}
+
+int pop(void)
 {
     int n;
     n = stack[--stackp];
