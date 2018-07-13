@@ -40,30 +40,30 @@ int main()
 {
     double op1, op2, value;
     char c, *s, *name;
-	int i, asg;
+    int i, asg;
 	
-	asg = 0;
+    asg = 0;
     bufp = 0;
     stackp = 0;
 
     for(i = 0; i < STACKSIZE; i++){
-		stack[i] = 0;
-	}
+	stack[i] = 0;
+    }
 	
-	for(i = 0; i < WORDSIZE; i++){
-		word[i] = 0;
-	}
+    for(i = 0; i < WORDSIZE; i++){
+	word[i] = 0;
+    }
 	
-	for(i = 0; i < TABLESIZE; i++){
-		wordtable[i].name = "";
-		wordtable[i].value = 0;
-	}
+    for(i = 0; i < TABLESIZE; i++){
+	wordtable[i].name = "";
+	wordtable[i].value = 0;
+    }
 	
     while((c = getchar()) != '\0'){
 
         if(c == '\n' && !asg)
             printf("%d\n",stack[stackp-1]);
-		asg = 0;
+	asg = 0;
 		
         if(isspace(c))
             continue;
@@ -74,21 +74,21 @@ int main()
             continue;
         }
 		
-		if(isalpha(c)){
-			
-			s = word;
-			*s++ = c;
-			getword(s);
-			
-			if((i = lookup(s))){
-				push(i);
-				continue;
-			}
-			
-			name = (char *)malloc((strlen(s) + 1) * sizeof(char));
-			strcpy(name, s);
-			continue;
-		}
+	if(isalpha(c)){
+
+	    s = word;
+	    *s++ = c;
+	    getword(s);
+
+	    if((i = lookup(s))){
+		push(i);
+		continue;
+	    }
+
+	    name = (char *)malloc((strlen(s) + 1) * sizeof(char));
+	    strcpy(name, s);
+	    continue;
+	}
 
         switch(c){
 
@@ -125,43 +125,43 @@ int main()
 				break;
 				
 			case '?':
-                op1 = pop();
-                value = sqrt(op1);
-                push(value);
+				op1 = pop();
+				value = sqrt(op1);
+				push(value);
 				break;
-				
+
 			case '%':
 				op2 = pop();
 				op1 = pop();
 				value = (int)op1 % (int)op2;
 				push(value);
 				break;
-				
+
 			case '<':
 				op2 = pop();
 				op1 = pop();
 				value = (op1 < op2);
 				push(value);
 				break;
-				
+
 			case '>':
 				op2 = pop();
 				op1 = pop();
 				value = (op1 > op2);
 				push(value);
 				break;
-			
+
 			case '=':
 				op2 = pop();
 				install(name,op2);
 				asg = 1;
 				break;
-			
+
 			case '$':
 				return 0;
 				break;
-				
-        }
+
+			}
 
     }
 
