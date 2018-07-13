@@ -33,7 +33,7 @@ char buffer[BUFFSIZE];
 char word[WORDSIZE];
 entry wordtable[TABLESIZE];
 
-int stack_p;
+int stackp;
 int bufp;
 
 int main()
@@ -41,26 +41,28 @@ int main()
     double op1, op2, value;
     char c, *s, *name;
 	int i, asg;
-
+	
+	asg = 0;
     bufp = 0;
-    stack_p = 0;
+    stackp = 0;
 
-    for(i = 0; i < STACKSIZE; i++)
-        stack[i] = 0;
+    for(i = 0; i < STACKSIZE; i++){
+		stack[i] = 0;
+	}
+	
+	for(i = 0; i < WORDSIZE; i++){
+		word[i] = 0;
+	}
 	
 	for(i = 0; i < TABLESIZE; i++){
 		wordtable[i].name = "";
 		wordtable[i].value = 0;
 	}
 	
-	for(i = 0; i < WORDSIZE; i++)
-		word[i] = 0;
-	
-	asg = 0;
     while((c = getchar()) != '\0'){
 
         if(c == '\n' && !asg)
-            printf("%d\n",stack[stack_p-1]);
+            printf("%d\n",stack[stackp-1]);
 		asg = 0;
 		
         if(isspace(c))
@@ -134,6 +136,20 @@ int main()
 				value = (int)op1 % (int)op2;
 				push(value);
 				break;
+				
+			case '<':
+				op2 = pop();
+				op1 = pop();
+				value = (op1 < op2);
+				push(value);
+				break;
+				
+			case '>':
+				op2 = pop();
+				op1 = pop();
+				value = (op1 > op2);
+				push(value);
+				break;
 			
 			case '=':
 				op2 = pop();
@@ -144,6 +160,7 @@ int main()
 			case '$':
 				return 0;
 				break;
+				
         }
 
     }
@@ -212,14 +229,14 @@ int lookup(char *name)
 int pop()
 {
     int n;
-    n = stack[--stack_p];
-    stack[stack_p] = 0;
+    n = stack[--stackp];
+    stack[stackp] = 0;
     return n;
 }
 
 void push(int value)
 {
-    stack[stack_p++] = value;
+    stack[stackp++] = value;
 }
 
 char getch(void)
